@@ -301,7 +301,7 @@
             statusLabel.innerText = "OPENING LOCAL SERVER PORT ROUTE...";
 
             try {
-                const response = await fetch(`http://127.0.0.1:5000/triage?id=${encodeURIComponent(rawIdentifier)}`);
+                const response = await fetch(`https://qwerty123456ahrs.pythonanywhere.com/triage?id=${encodeURIComponent(rawIdentifier)}`);
                 
                 if (!response.ok) {
                     document.getElementById("modelDisplay").innerText = `ERR: SERVER HTTP ${response.status}`;
