@@ -289,7 +289,7 @@
     <script>
         async function executeTriageQuery() {
             const inputNode = document.getElementById("targetField");
-            const rawIdentifier = inputNode.value.trim().toUpperCase();
+        q   const rawIdentifier = document.getElementById("inputFieldID").value;
             if (!rawIdentifier) return;
 
             document.getElementById("modelDisplay").innerText = "TRIAGE RUNNING...";
