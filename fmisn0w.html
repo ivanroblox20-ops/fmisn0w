@@ -215,7 +215,7 @@
             text-align: center;
         }
 
-        /* 📡 Curated Utility Toolkit Shelf Stylings */
+        /* Curated Utility Toolkit Shelf Stylings */
         .utility-shelf {
             background: #111111;
             border: 1px solid #222222;
@@ -288,19 +288,28 @@
 
     <script>
         async function executeTriageQuery() {
+            // 📡 1. Safely pull data from your text form box element
             const inputNode = document.getElementById("targetField");
-        q   const rawIdentifier = document.getElementById("inputFieldID").value;
-            if (!rawIdentifier) return;
+            if (!inputNode) return;
 
+            // 🧼 2. Your magnificent string normalization logic line!
+            const rawIdentifier = inputNode.value.trim().toUpperCase();
+            if (!rawIdentifier) {
+                alert("Please enter a device identifier string first!");
+                return;
+            }
+
+            // 🔄 3. Update loading indicators instantly on display panels
             document.getElementById("modelDisplay").innerText = "TRIAGE RUNNING...";
             
             const imageContainer = document.getElementById("canvasImg");
             const statusLabel = document.getElementById("canvasLabel");
             imageContainer.style.display = "none";
             statusLabel.style.display = "block";
-            statusLabel.innerText = "OPENING LOCAL SERVER PORT ROUTE...";
+            statusLabel.innerText = "CONTACTING CLOUD SERVER CHANNELS...";
 
             try {
+                // 🚀 4. Fire the cross-origin network fetch straight to PythonAnywhere
                 const response = await fetch(`https://qwerty123456ahrs.pythonanywhere.com/triage?id=${encodeURIComponent(rawIdentifier)}`);
                 
                 if (!response.ok) {
@@ -309,22 +318,18 @@
                     return;
                 }
 
+                // 📦 5. Decode JSON packets directly into your display containers
                 const data = await response.json();
 
-                const targetPlatform = (data.platform || "").toUpperCase();
-                if (targetPlatform.includes("IOS")) {
-                    updateTileStrings("lblSec1", "FIND MY (FMI)", "lblSec2", "ICLOUD LOCK");
-                } else {
-                    updateTileStrings("lblSec1", "FRP STATUS", "lblSec2", "GOOGLE ACCOUNT");
-                }
+                // Mapping elements directly onto your clean Flask backend schema keys!
+                document.getElementById("modelDisplay").innerText = data.device || "UNKNOWN HARDWARE";
+                document.getElementById("platformDisplay").innerText = data.ios_version || "NOT DETECTED";
+                document.getElementById("fmiDisplay").innerText = data.activation_lock || "---";
+                document.getElementById("lockDisplay").innerText = data.security || "---";
+                document.getElementById("gsmaDisplay").innerText = data.network || "CLEAN";
+                document.getElementById("carrierDisplay").innerText = data.carrier_lock || "---";
 
-                document.getElementById("modelDisplay").innerText = data.model || "UNKNOWN HARDWARE";
-                document.getElementById("platformDisplay").innerText = data.platform || "NOT DETECTED";
-                document.getElementById("fmiDisplay").innerText = data.fmi || "---";
-                document.getElementById("lockDisplay").innerText = data.icloud || "---";
-                document.getElementById("gsmaDisplay").innerText = data.gsma || "CLEAN";
-                document.getElementById("carrierDisplay").innerText = data.carrier || "---";
-
+                // Image graphic rendering conditions block
                 if (data.image_url) {
                     imageContainer.src = data.image_url;
                     imageContainer.onload = function() {
@@ -340,14 +345,9 @@
 
             } catch (failEvent) {
                 document.getElementById("modelDisplay").innerText = "SERVER OFFLINE";
-                statusLabel.innerText = "PORT 5000: REFUSED CONNECTION";
+                statusLabel.innerText = "NETWORK HANDSHAKE REFUSED";
                 console.error("Local triage routine fault report: ", failEvent);
             }
-        }
-
-        function updateTileStrings(elementA, stringA, elementB, stringB) {
-            document.getElementById(elementA).innerText = stringA;
-            document.getElementById(elementB).innerText = stringB;
         }
     </script>
 </head>
@@ -484,8 +484,6 @@
         </div>
     </div>
     
-    </div>
-
 </div>
 
 </body>
