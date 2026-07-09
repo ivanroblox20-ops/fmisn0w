@@ -181,13 +181,15 @@
             display: block;
         }
 
+        /* 📱 FIXED LAYER: Auto-wrapping text values with fluid size scaling */
         .tile-counter {
-            font-size: 1.8em;
+            font-size: clamp(1.1em, 2vw, 1.40em); 
             font-weight: 300;
-            margin-top: 10px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-top: 6px;
+            line-height: 1.2;
+            word-wrap: break-word;     
+            white-space: normal;       
+            overflow: visible;         
         }
 
         .tile-footer {
@@ -292,10 +294,16 @@
             const inputNode = document.getElementById("targetField");
             if (!inputNode) return;
 
-            // 🧼 2. Your magnificent string normalization logic line!
+            // 🧼 2. Your string normalization logic line
             const rawIdentifier = inputNode.value.trim().toUpperCase();
             if (!rawIdentifier) {
                 alert("Please enter a device identifier string first!");
+                return;
+            }
+
+            // 🚫 THE "ABCDEF" BUG FIX: Block alpha tracking spam instantly if it doesn't contain the core override tags
+            if (/^[A-Z\s]+$/.test(rawIdentifier) && rawIdentifier !== "IPHONE" && rawIdentifier !== "IPHONE6") {
+                alert("Format Rejection! System parameters require numeric digits or serial keywords.");
                 return;
             }
 
@@ -309,7 +317,7 @@
             statusLabel.innerText = "CONTACTING CLOUD SERVER CHANNELS...";
 
             try {
-                // 🚀 4. Fire the cross-origin network fetch straight to PythonAnywhere
+                // 🚀 4. Fire cross-origin fetch to PythonAnywhere backend API
                 const response = await fetch(`https://qwerty123456ahrs.pythonanywhere.com/triage?id=${encodeURIComponent(rawIdentifier)}`);
                 
                 if (!response.ok) {
@@ -318,10 +326,10 @@
                     return;
                 }
 
-                // 📦 5. Decode JSON packets directly into your display containers
+                // 📦 5. Decode data directly into your design elements
                 const data = await response.json();
 
-                // Mapping elements directly onto your clean Flask backend schema keys!
+                // Mapping variables cleanly to the Python JSON keys
                 document.getElementById("modelDisplay").innerText = data.device || "UNKNOWN HARDWARE";
                 document.getElementById("platformDisplay").innerText = data.ios_version || "NOT DETECTED";
                 document.getElementById("fmiDisplay").innerText = data.activation_lock || "---";
@@ -329,7 +337,7 @@
                 document.getElementById("gsmaDisplay").innerText = data.network || "CLEAN";
                 document.getElementById("carrierDisplay").innerText = data.carrier_lock || "---";
 
-                // Image graphic rendering conditions block
+                // Image graphic checker rules
                 if (data.image_url) {
                     imageContainer.src = data.image_url;
                     imageContainer.onload = function() {
@@ -379,7 +387,7 @@
                 
                 <div class="tile-action" onclick="executeTriageQuery()">
                     <span class="tile-label" style="color: #fff; opacity: 1;">Run</span>
-                    <div class="tile-counter" style="font-weight: 400;">CHECK NOW</div>
+                    <div class="tile-counter" style="font-weight: 400; font-size: 1.6em;">CHECK NOW</div>
                     <div class="tile-footer" style="opacity: 0.9;">Free</div>
                 </div>
 
