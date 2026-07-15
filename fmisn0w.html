@@ -117,6 +117,7 @@
             flex: 2;
         }
 
+        /* Right Panel Window Container */
         .hardware-canvas {
             flex: 1;
             background: #111111;
@@ -131,6 +132,76 @@
             position: relative;
         }
 
+        /* Content panels inside the canvas view area */
+        .canvas-view-pane {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .canvas-view-pane.active {
+            display: flex;
+        }
+
+        /* Custom Panel Stylings */
+        .pane-title {
+            color: #00a2ff;
+            font-size: 1.1em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        .pane-text {
+            font-size: 0.9em;
+            line-height: 1.4;
+            opacity: 0.8;
+            margin: 0 0 12px 0;
+        }
+
+        /* Back Button inside Side Panes */
+        .pane-back-btn {
+            align-self: flex-start;
+            background: #2d2d30;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .pane-back-btn:hover {
+            background: #0078d7;
+        }
+
+        /* Mini Pane Grid Layout */
+        .pane-links-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .pane-link-item {
+            background: #1c1c1f;
+            border-left: 3px solid #00a2ff;
+            padding: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85em;
+            transition: background 0.15s;
+        }
+
+        .pane-link-item:hover {
+            background: #252528;
+        }
+
         /* Metro Dynamic Square & Rectangular Grid System */
         .metro-grid {
             display: grid;
@@ -138,7 +209,7 @@
             gap: 12px;
         }
 
-        /* Semi-Difficulty Interactive Action Tile */
+        /* Interactive Action Tile */
         .tile-action {
             grid-column: span 2;
             background: #0078d7;
@@ -164,6 +235,19 @@
             position: relative;
         }
 
+        /* Interactive Navigation Tiles (About, Allies, Tools) */
+        .tile-nav {
+            background: #1f1f1f;
+            border: 1px solid #333;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .tile-nav:hover {
+            background: #2d2d30;
+            border-color: #00a2ff;
+        }
+
         /* Color States for Triage Logic Output */
         .tile.cyan   { background: #00a2ff; }
         .tile.purple { background: #7e38b7; }
@@ -181,15 +265,13 @@
             display: block;
         }
 
-        /* 📱 FIXED LAYER: Auto-wrapping text values with fluid size scaling */
         .tile-counter {
-            font-size: clamp(1.1em, 2vw, 1.40em); 
+            font-size: 1.8em;
             font-weight: 300;
-            margin-top: 6px;
-            line-height: 1.2;
-            word-wrap: break-word;     
-            white-space: normal;       
-            overflow: visible;         
+            margin-top: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tile-footer {
@@ -289,36 +371,34 @@
     </style>
 
     <script>
+        // Switch right side views dynamically
+        function switchCanvasView(targetViewId) {
+            // Hide all sub-views inside canvas box
+            const views = document.querySelectorAll('.canvas-view-pane');
+            views.forEach(view => view.classList.remove('active'));
+            
+            // Show requested pane
+            document.getElementById(targetViewId).classList.add('active');
+        }
+
         async function executeTriageQuery() {
-            // 📡 1. Safely pull data from your text form box element
+            // Revert view to main live stream window when checking a new device
+            switchCanvasView('mainStreamView');
+
             const inputNode = document.getElementById("targetField");
-            if (!inputNode) return;
-
-            // 🧼 2. Your string normalization logic line
             const rawIdentifier = inputNode.value.trim().toUpperCase();
-            if (!rawIdentifier) {
-                alert("Please enter a device identifier string first!");
-                return;
-            }
+            if (!rawIdentifier) return;
 
-            // 🚫 THE "ABCDEF" BUG FIX: Block alpha tracking spam instantly if it doesn't contain the core override tags
-            if (/^[A-Z\s]+$/.test(rawIdentifier) && rawIdentifier !== "IPHONE" && rawIdentifier !== "IPHONE6") {
-                alert("Format Rejection! System parameters require numeric digits or serial keywords.");
-                return;
-            }
-
-            // 🔄 3. Update loading indicators instantly on display panels
             document.getElementById("modelDisplay").innerText = "TRIAGE RUNNING...";
             
             const imageContainer = document.getElementById("canvasImg");
             const statusLabel = document.getElementById("canvasLabel");
             imageContainer.style.display = "none";
             statusLabel.style.display = "block";
-            statusLabel.innerText = "CONTACTING CLOUD SERVER CHANNELS...";
+            statusLabel.innerText = "OPENING LOCAL SERVER PORT ROUTE...";
 
             try {
-                // 🚀 4. Fire cross-origin fetch to PythonAnywhere backend API
-                const response = await fetch(`https://qwerty123456ahrs.pythonanywhere.com/triage?id=${encodeURIComponent(rawIdentifier)}`);
+                const response = await fetch(`http://127.0.0.1:5000/triage?id=${encodeURIComponent(rawIdentifier)}`);
                 
                 if (!response.ok) {
                     document.getElementById("modelDisplay").innerText = `ERR: SERVER HTTP ${response.status}`;
@@ -326,18 +406,22 @@
                     return;
                 }
 
-                // 📦 5. Decode data directly into your design elements
                 const data = await response.json();
 
-                // Mapping variables cleanly to the Python JSON keys
-                document.getElementById("modelDisplay").innerText = data.device || "UNKNOWN HARDWARE";
-                document.getElementById("platformDisplay").innerText = data.ios_version || "NOT DETECTED";
-                document.getElementById("fmiDisplay").innerText = data.activation_lock || "---";
-                document.getElementById("lockDisplay").innerText = data.security || "---";
-                document.getElementById("gsmaDisplay").innerText = data.network || "CLEAN";
-                document.getElementById("carrierDisplay").innerText = data.carrier_lock || "---";
+                const targetPlatform = (data.platform || "").toUpperCase();
+                if (targetPlatform.includes("IOS")) {
+                    updateTileStrings("lblSec1", "FIND MY (FMI)", "lblSec2", "ICLOUD LOCK");
+                } else {
+                    updateTileStrings("lblSec1", "FRP STATUS", "lblSec2", "GOOGLE ACCOUNT");
+                }
 
-                // Image graphic checker rules
+                document.getElementById("modelDisplay").innerText = data.model || "UNKNOWN HARDWARE";
+                document.getElementById("platformDisplay").innerText = data.platform || "NOT DETECTED";
+                document.getElementById("fmiDisplay").innerText = data.fmi || "---";
+                document.getElementById("lockDisplay").innerText = data.icloud || "---";
+                document.getElementById("gsmaDisplay").innerText = data.gsma || "CLEAN";
+                document.getElementById("carrierDisplay").innerText = data.carrier || "---";
+
                 if (data.image_url) {
                     imageContainer.src = data.image_url;
                     imageContainer.onload = function() {
@@ -353,9 +437,14 @@
 
             } catch (failEvent) {
                 document.getElementById("modelDisplay").innerText = "SERVER OFFLINE";
-                statusLabel.innerText = "NETWORK HANDSHAKE REFUSED";
+                statusLabel.innerText = "PORT 5000: REFUSED CONNECTION";
                 console.error("Local triage routine fault report: ", failEvent);
             }
+        }
+
+        function updateTileStrings(elementA, stringA, elementB, stringB) {
+            document.getElementById(elementA).innerText = stringA;
+            document.getElementById(elementB).innerText = stringB;
         }
     </script>
 </head>
@@ -387,7 +476,7 @@
                 
                 <div class="tile-action" onclick="executeTriageQuery()">
                     <span class="tile-label" style="color: #fff; opacity: 1;">Run</span>
-                    <div class="tile-counter" style="font-weight: 400; font-size: 1.6em;">CHECK NOW</div>
+                    <div class="tile-counter" style="font-weight: 400;">CHECK NOW</div>
                     <div class="tile-footer" style="opacity: 0.9;">Free</div>
                 </div>
 
@@ -427,12 +516,60 @@
                     <div class="tile-footer">SIM Card and Carrier Lock Status</div>
                 </div>
 
+                <div class="tile tile-nav" onclick="switchCanvasView('aboutPane')">
+                    <span class="tile-label" style="color: #00a2ff;">Info</span>
+                    <div class="tile-counter" style="font-size: 1.5em; font-weight: 400;">ABOUT ME</div>
+                    <div class="tile-footer">Developer Profile</div>
+                </div>
+
+                <div class="tile tile-nav" onclick="switchCanvasView('alliesPane')">
+                    <span class="tile-label" style="color: #00a600;">Network</span>
+                    <div class="tile-counter" style="font-size: 1.5em; font-weight: 400;">ALLIES</div>
+                    <div class="tile-footer">Trusted Partners</div>
+                </div>
+
+                <div class="tile tile-nav" onclick="switchCanvasView('toolsPane')">
+                    <span class="tile-label" style="color: #7e38b7;">Toolkit</span>
+                    <div class="tile-counter" style="font-size: 1.5em; font-weight: 400;">UTILITIES</div>
+                    <div class="tile-footer">Recommended Tools</div>
+                </div>
+
             </div>
         </div>
 
         <div class="hardware-canvas">
-            <div id="canvasLabel" class="canvas-placeholder">Waiting for hardware input stream...</div>
-            <img id="canvasImg" src="" alt="Hardware Array Graphics" class="device-view">
+            
+            <div id="mainStreamView" class="canvas-view-pane active">
+                <div id="canvasLabel" class="canvas-placeholder">Waiting for hardware input stream...</div>
+                <img id="canvasImg" src="" alt="Hardware Array Graphics" class="device-view">
+            </div>
+
+            <div id="aboutPane" class="canvas-view-pane">
+                <h3 class="pane-title">About Me</h3>
+                <p class="pane-text">Hardware enthusiast, retro collector, and researcher specializing in device triage environments. Building lightweight desktop-class operating systems and tracking interfaces.</p>
+                <button class="pane-back-btn" onclick="switchCanvasView('mainStreamView')">Return to Stream</button>
+            </div>
+
+            <div id="alliesPane" class="canvas-view-pane">
+                <h3 class="pane-title">Allies & Network</h3>
+                <div class="pane-links-list">
+                    <div class="pane-link-item">Community Repair Labs</div>
+                    <div class="pane-link-item">Open-Source Triage Devs</div>
+                    <div class="pane-link-item">Legacy Archival Scene</div>
+                </div>
+                <button class="pane-back-btn" onclick="switchCanvasView('mainStreamView')">Return to Stream</button>
+            </div>
+
+            <div id="toolsPane" class="canvas-view-pane">
+                <h3 class="pane-title">Recommended Tools</h3>
+                <div class="pane-links-list">
+                    <a href="https://hackt1vator.com/" target="_blank" class="pane-link-item">↳ Hackt1vator Suite</a>
+                    <a href="https://winra1n.net/" target="_blank" class="pane-link-item">↳ Winra1n Environment</a>
+                    <a href="https://github.com/LukeZGD/Legacy-iOS-Kit" target="_blank" class="pane-link-item">↳ Legacy iOS Kit</a>
+                </div>
+                <button class="pane-back-btn" onclick="switchCanvasView('mainStreamView')">Return to Stream</button>
+            </div>
+
         </div>
 
     </div>
@@ -466,10 +603,9 @@
             </a>
 
         </div>
-    
     </div>
 
-   <div class="utility-shelf" style="margin-top: 24px;">
+    <div class="utility-shelf" style="margin-top: 24px;">
         <div class="shelf-title">SOCIAL MEDIA</div>
         <div class="banner-grid">
             
